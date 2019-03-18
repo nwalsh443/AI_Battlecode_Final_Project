@@ -4,6 +4,8 @@
 
 ## Christopher Cruz
 
-## Andrew March 
+## Andrew March
+
+## Thomas Cooper
 
 ## Implement an AI agent for the MIT Battlecode game.
