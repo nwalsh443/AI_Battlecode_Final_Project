@@ -48,27 +48,28 @@ data = json.load(open(filename))
 '''
 
 data = {
+#Making memers proud, but fix for our lord Ben
 	"Mars": {
-		"worker_harvest": 0.5,
-		"worker_replicate": 1.0,
-		"worker_attack": 1.0,
-		"worker_move": 0.8,
+		"worker_harvest": 0.69,
+		"worker_replicate": 0.420,
+		"worker_attack": 0.69,
+		"worker_move": 0.420,
 
-		"knight_javelin": 0.6,
-		"knight_attack": 1.0,
-		"knight_move": 0.8,
+		"knight_javelin": 0.420,
+		"knight_attack": 0.69,
+		"knight_move": 0.420,
 
-		"mage_blink": 0.7,
-		"mage_attack": 1.0,
-		"mage_move": 0.9,
+		"mage_blink": 0.69,
+		"mage_attack": 0.420,
+		"mage_move": 0.69,
 
-		"ranger_snipe": 0.7,
-		"ranger_attack": 1.0,
-		"ranger_move": 0.9,
+		"ranger_snipe": 0.420,
+		"ranger_attack": 0.69,
+		"ranger_move": 0.420,
 
-		"healer_overcharge": 0.4,
-		"healer_heal": 1.0,
-		"healer_move": 1.0
+		"healer_overcharge": 0.69,
+		"healer_heal": 0.420,
+		"healer_move": 0.69
 	},
 	"Earth": {
 		"first_phase": {
@@ -141,13 +142,18 @@ data = {
 		"healer_move": 1.0
 	}
 }
-#Strategy: Slowly focus on mining Karbonite, heavily militarize, then transport to Mars
+#Strategy: Slowly focus on mining Karbonite, heavily militarize and then transport to Mars
 #Queue one worker
 gc.queue_research(bc.UnitType.Worker)
+#Queue one rocket
+gc.queue_research(bc.UnitType.Rocket)
 #queue the knights first to focus on fighting, all 3
 gc.queue_research(bc.UnitType.Knight)
 gc.queue_research(bc.UnitType.Knight)
 gc.queue_research(bc.UnitType.Knight)
+#queue the rockets to focus on trip to Mars, the next two
+gc.queue_research(bc.UnitType.Rocket)
+gc.queue_research(bc.UnitType.Rocket)
 #queue the mages next to focus on fighting, all 3
 gc.queue_research(bc.UnitType.Mage)
 gc.queue_research(bc.UnitType.Mage)
@@ -158,10 +164,6 @@ gc.queue_research(bc.UnitType.Ranger)
 gc.queue_research(bc.UnitType.Ranger)
 #Queue another worker
 gc.queue_research(bc.UnitType.Worker)
-#queue the rockets to focus on trip to Mars, all 3
-gc.queue_research(bc.UnitType.Rocket)
-gc.queue_research(bc.UnitType.Rocket)
-gc.queue_research(bc.UnitType.Rocket)
 #Queue another worker
 gc.queue_research(bc.UnitType.Worker)
 #Healthcare not a huge priority
@@ -397,7 +399,7 @@ class WorkerClass(object):
 				gc.build(unit.id, other.id)
 				break
 
-class MageClass(object):
+class MageClass(object): #if blink is ready, and it's a level 4 or higher
 	def blink_attack_mars(unit):
 		if not gc.is_blink_ready(unit.id):
 			return
@@ -405,16 +407,17 @@ class MageClass(object):
 			return
 
 		location = unit.location
-
-		possible_targets = sense_nearby_units_by_team(location.map_location(), 2, enemy_team)
-		if len(possible_targets) > 2:
+		#sense nearby targets, and don't blink if there are less than 5 targets
+		possible_targets = sense_nearby_units_by_team(location.map_location(), 30, enemy_team)
+		if len(possible_targets) > 5:
 			return
-
+		#pick random spot on board to teleport to
 		for guess in range(NUMBER_OF_GUESSES):
 			i = random.randint(0, marsHeight-1)
 			j = random.randint(0, marsWidth-1)
 
 			try:
+				#if the mage can blink to that location, it does
 				temp_location = bc.MapLocation(bc.Planet.Mars, i, j)
 				if gc.can_blink(unit.id, temp_location):
 					gc.blink(unit.id, temp_location)
@@ -433,10 +436,10 @@ class MageClass(object):
 
 		location = unit.location
 
-		possible_targets = sense_nearby_units_by_team(location.map_location(), 2, enemy_team)
-		if len(possible_targets) > 2:
+		possible_targets = sense_nearby_units_by_team(location.map_location(), 30, enemy_team)
+		if len(possible_targets) > 5:
 			return
-
+#Work on making this less random
 		for guess in range(NUMBER_OF_GUESSES):
 			i = random.randint(0, earthHeight-1)
 			j = random.randint(0, earthWidth-1)
@@ -489,7 +492,8 @@ class RangerClass(object):
 			return
 		if bc.ResearchInfo.get_level(bc.UnitType.Ranger) < 3:
 			return
-
+#picks a random location, and if it can snipe there, it snipes
+#Work on making this smarter
 		for guess in range(NUMBER_OF_GUESSES):
 			i = random.randint(0, marsHeight-1)
 			j = random.randint(0, marsWidth-1)
@@ -514,7 +518,7 @@ class RangerClass(object):
 			return
 
 		location = unit.location
-
+#Ben Shapiro attacks the Rockets first on Earth, and then the Factories
 		possible_targets = sense_nearby_units_by_type(location.map_location(), unit.ability_range(), bc.UnitType.Rocket)
 		for other in possible_targets:
 			if gc.can_begin_snipe(unit.id, other.location.map_location()):
@@ -526,7 +530,7 @@ class RangerClass(object):
 			if gc.can_begin_snipe(unit.id, other.location.map_location()):
 				gc.begin_snipe(unit.id, other.location.map_location())
 				return
-
+#Be smarter about this
 		for guess in range(NUMBER_OF_GUESSES):
 			i = random.randint(0, earthHeight-1)
 			j = random.randint(0, earthWidth-1)
@@ -551,7 +555,7 @@ class KnightClass(object):
 			return
 
 		location = unit.location
-
+#Javelin opponents if it can
 		possible_targets = sense_nearby_units_by_team(location.map_location(), unit.ability_range(), enemy_team)
 		for other in possible_targets:
 			if gc.can_javelin(unit.id, other.id):
@@ -781,19 +785,20 @@ while True:
 				if phase_number == "third_phase":
 					if total_number_rockets == 0:
 						total_number_rockets = -1
-						data["Earth"][phase_number]["worker_harvest"] = 0.85
-						data["Earth"][phase_number]["worker_replicate"] = 1.0
-						data["Earth"][phase_number]["worker_blueprint_factory"] = 0.0
-						data["Earth"][phase_number]["worker_blueprint_rocket"] = 0.0
-						data["Earth"][phase_number]["worker_repair"] = 0.0
-						data["Earth"][phase_number]["worker_attack"] = 0.0
-						data["Earth"][phase_number]["worker_move"] = 0.8
+						#Set a new default to please the memer establishment
+						data["Earth"][phase_number]["worker_harvest"] = 0.420
+						data["Earth"][phase_number]["worker_replicate"] = 0.69
+						data["Earth"][phase_number]["worker_blueprint_factory"] = 0.420
+						data["Earth"][phase_number]["worker_blueprint_rocket"] = 0.69
+						data["Earth"][phase_number]["worker_repair"] = 0.69
+						data["Earth"][phase_number]["worker_attack"] = 0.420
+						data["Earth"][phase_number]["worker_move"] = 0.69
 
-						data["Earth"][phase_number]["produce_worker"] = 0.3
-						data["Earth"][phase_number]["produce_knight"] = 0.0
-						data["Earth"][phase_number]["produce_healer"] = 0.0
-						data["Earth"][phase_number]["produce_mage"] = 0.0
-						data["Earth"][phase_number]["produce_ranger"] = 0.0
+						data["Earth"][phase_number]["produce_worker"] = 0.420
+						data["Earth"][phase_number]["produce_knight"] = 0.69
+						data["Earth"][phase_number]["produce_healer"] = 0.420
+						data["Earth"][phase_number]["produce_mage"] = 0.69
+						data["Earth"][phase_number]["produce_ranger"] = 0.420
 						data["Earth"][phase_number]["rocket_launch"] = 0.69
 
 	except Exception as e:
