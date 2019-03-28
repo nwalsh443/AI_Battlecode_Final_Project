@@ -24,6 +24,25 @@ print(os.getcwd())
 
 print("pystarting")
 
+
+  ##############################################################################################################
+    
+#Chris
+#This is supposed to guess the location of the enemy, by taking our first units position on the map and then inverting it
+#Because most of the maps are symetric
+#Knowing the locaion of where the enemy might be can help us attack and move more accurately
+
+def invert(loc):
+    newx = earthMap.width-loc.x
+    newy = earthMap.length-loc.y
+    return bc.MapLocation(bc.Planet.Earth, newx, newy)
+
+if gc.planet() == bc.Planet.Earth:
+    oneLoc = gc.my_units()[0].location.map_location()
+    earthMap= gc.starting_map(bc.Planet.Earth)
+    enemyStart = invert(oneLoc):
+        ##############################################################################################################
+
 # A GameController is the main type that you talk to the game with.
 # Its constructor will connect to a running game.
 gc = bc.GameController()
