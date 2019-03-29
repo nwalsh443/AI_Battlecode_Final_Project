@@ -8,17 +8,6 @@ import traceback
 import json
 from datetime import datetime
 
-'''
-from worker import WorkerClass
-from knight import KnightClass
-from mage import MageClass
-from healer import HealerClass
-from ranger import RangerClass
-from factory import FactoryClass
-from rocket import RocketClass
-from general import GeneralActions
-'''
-
 import os
 print(os.getcwd())
 
