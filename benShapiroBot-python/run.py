@@ -574,7 +574,7 @@ while True:
 					elif myWorkFlip == 1:
 						WorkerClass.replicate_worker(current_unit)
 					
-					myWorkFlip = (myWorkFlip + 1)%2
+					myWorkFlip = (myWorkFlip + 1)%3
 
 					GeneralActions.attack_bitch(current_unit, p, "Mars", "worker_attack")
 					GeneralActions.move_bitch(current_unit, "Mars", "worker_move")
@@ -639,7 +639,7 @@ while True:
 					elif myWorkFlipE == 4:
 						WorkerClass.repair(current_unit)
 						
-					myWorkFlipE = (myWorkFlipE + 1)%5
+					myWorkFlipE = (myWorkFlipE + 1)%6
 
 					GeneralActions.attack_bitch(current_unit, p, "Earth", "worker_attack")
 					GeneralActions.move_bitch(current_unit, "Earth", "worker_move")
