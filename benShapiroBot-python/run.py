@@ -38,99 +38,23 @@ filename = 'strategy.json'
 data = json.load(open(filename))
 '''
 
+#Everything is deterministic
+
 data = {
 #Making memers proud, but fix for our lord Ben
-	"Mars": {
-		"worker_harvest": 0.69,
-		"worker_replicate": 0.420,
-		"worker_attack": 0.69,
-		"worker_move": 0.420,
-
-		"knight_javelin": 0.420,
-		"knight_attack": 0.69,
-		"knight_move": 0.420,
-
-		"mage_blink": 0.69,
-		"mage_attack": 0.420,
-		"mage_move": 0.69,
-
-		"ranger_snipe": 0.420,
-		"ranger_attack": 0.69,
-		"ranger_move": 0.420,
-
-		"healer_overcharge": 0.69,
-		"healer_heal": 0.420,
-		"healer_move": 0.69
-	},
+	
 	"Earth": {
 		"first_phase": {
-			"threshold": 200,
-			"worker_harvest": 0.4,
-			"worker_replicate": 0.42,
-			"worker_blueprint_factory": 0.6,
-			"worker_blueprint_rocket": 0.95,
-			"worker_repair": 1.0,
-			"worker_attack": 1.0,
-			"worker_move": 0.5,
-
-			"produce_worker": 0.4,
-			"produce_knight": 0.45,
-			"produce_healer": 0.47,
-			"produce_mage": 0.5,
-			"produce_ranger": 0.55,
-			"rocket_launch": 0.0
+			"threshold": 200
 		},
 
 		"second_phase": {
-			"threshold": 300,
-			"worker_harvest": 0.3,
-			"worker_replicate": 0.35,
-			"worker_blueprint_factory": 0.4,
-			"worker_blueprint_rocket": 0.8,
-			"worker_repair": 1.0,
-			"worker_attack": 1.0,
-			"worker_move": 0.9,
-
-			"produce_worker": 0.3,
-			"produce_knight": 0.4,
-			"produce_healer": 0.42,
-			"produce_mage": 0.45,
-			"produce_ranger": 0.6,
-			"rocket_launch": 0.1
+			"threshold": 300
 		},
 
 		"third_phase": {
-			"worker_harvest": 0.3,
-			"worker_replicate": 0.6,
-			"worker_blueprint_factory": 0.65,
-			"worker_blueprint_rocket": 0.75,
-			"worker_repair": 0.85,
-			"worker_attack": 0.85,
-			"worker_move": 0.8,
-
-			"produce_worker": 0.2,
-			"produce_knight": 0.5,
-			"produce_healer": 0.52,
-			"produce_mage": 0.54,
-			"produce_ranger": 0.74,
-			"rocket_launch": 0.8
 		},
 
-		"knight_javelin": 0.6,
-		"knight_attack": 1.0,
-		"knight_move": 0.8,
-
-		"mage_blink": 0.7,
-		"mage_attack": 1.0,
-		"mage_move": 0.9,
-
-		"ranger_snipe": 0.5,
-		"ranger_attack": 1.0,
-		"ranger_move": 0.9,
-
-		"healer_overcharge": 0.6,
-		"healer_heal": 1.0,
-		"healer_move": 1.0
 	}
 }
 #Strategy: Slowly focus on mining Karbonite, heavily militarize and then transport to Mars
@@ -627,6 +551,9 @@ class FactoryClass(object):
 
 find_free_locations_in_Mars()
 
+myWorkFlipM = 0
+myWorkFlipE = 0
+
 while True:
     # We only support Python 3, which means brackets around print()
 	print('pyround:', gc.round(), 'time left:', gc.get_time_left_ms(), 'ms')
@@ -641,50 +568,44 @@ while True:
 
 			elif current_unit.location.is_on_planet(bc.Planet.Mars):
 				if current_unit.unit_type == bc.UnitType.Worker:
-					p = random.random()
-					if p < data["Mars"]["worker_harvest"]:
+					if myWorkFlip == 0: #Alternates between harvesting and replicating
 						WorkerClass.harvest_karbonite(current_unit)
 
-					elif p < data["Mars"]["worker_replicate"]:
+					elif myWorkFlip == 1:
 						WorkerClass.replicate_worker(current_unit)
+					
+					myWorkFlip = (myWorkFlip + 1)%2
 
 					GeneralActions.attack_bitch(current_unit, p, "Mars", "worker_attack")
 					GeneralActions.move_bitch(current_unit, "Mars", "worker_move")
 
+				if current_unit.unit_type == bc.UnitType.Rocket:
+					RocketClass.unload_rocket(current_unit)
+				
 				if current_unit.unit_type == bc.UnitType.Knight:
-					p = random.random()
-					if p < data["Mars"]["knight_javelin"]:
-						KnightClass.javelin_attack(current_unit)
+					KnightClass.javelin_attack(current_unit)
 
 					GeneralActions.attack_bitch(current_unit, p, "Mars", "knight_attack")
 					GeneralActions.move_bitch(current_unit, "Mars", "knight_move")
 
 				if current_unit.unit_type == bc.UnitType.Mage:
-					p = random.random()
-					if p < data["Mars"]["mage_blink"]:
-						MageClass.blink_attack_mars(current_unit)
+					MageClass.blink_attack_mars(current_unit)
 
 					GeneralActions.attack_bitch(current_unit, p, "Mars", "mage_attack")
 					GeneralActions.move_bitch(current_unit, "Mars", "mage_move")
 
 				if current_unit.unit_type == bc.UnitType.Ranger:
-					p = random.random()
-					if p < data["Mars"]["ranger_snipe"]:
-						RangerClass.snipe_attack_mars(current_unit)
+					RangerClass.snipe_attack_mars(current_unit)
 
 					GeneralActions.attack_bitch(current_unit, p, "Mars", "ranger_attack")
 					GeneralActions.move_bitch(current_unit, "Mars", "ranger_move")
 
 				if current_unit.unit_type == bc.UnitType.Healer:
-					p = random.random()
-					if p < data["Mars"]["healer_overcharge"]:
-						HealerClass.overcharge_attack(current_unit)
+					HealerClass.overcharge_attack(current_unit)
 
 					HealerClass.heal_bitch(current_unit)
 					GeneralActions.move_bitch(current_unit, "Mars", "healer_move")
 
-				if current_unit.unit_type == bc.UnitType.Rocket:
-					RocketClass.unload_rocket(current_unit)
 
 
 	############  EARTH  ###########
@@ -703,32 +624,35 @@ while True:
 
 					GeneralActions.load_unit(current_unit)
 
-					p = random.random()
-					if p < data["Earth"][phase_number]["worker_harvest"]:
+					if myWorkFlipE == 0: #Alternates between harvesting, replicating, and building rockets and factories
 						WorkerClass.harvest_karbonite(current_unit)
 
-					elif p < data["Earth"][phase_number]["worker_replicate"]:
+					elif myWorkFlipE == 1:
 						WorkerClass.replicate_worker(current_unit)
 
-					elif p < data["Earth"][phase_number]["worker_blueprint_factory"]:
-						WorkerClass.build_blueprint(current_unit, bc.UnitType.Factory)
-
-					elif p < data["Earth"][phase_number]["worker_blueprint_rocket"]:
+					elif myWorkFlipE == 2:
 						WorkerClass.build_blueprint(current_unit, bc.UnitType.Rocket)
 
-					elif p < data["Earth"][phase_number]["worker_repair"]:
+					elif myWorkFlipE == 3:
+						WorkerClass.build_blueprint(current_unit, bc.UnitType.Factory)
+
+					elif myWorkFlipE == 4:
 						WorkerClass.repair(current_unit)
+						
+					myWorkFlipE = (myWorkFlipE + 1)%5
 
 					GeneralActions.attack_bitch(current_unit, p, "Earth", "worker_attack")
 					GeneralActions.move_bitch(current_unit, "Earth", "worker_move")
+					
+				if current_unit.unit_type == bc.UnitType.Rocket:
+					
+					RocketClass.launch_rocket(current_unit)
 
 				if current_unit.unit_type == bc.UnitType.Knight:
 					GeneralActions.load_unit(current_unit)
 					GeneralActions.move_towards_rocket(current_unit)
 
-					p = random.random()
-					if p < data["Earth"]["knight_javelin"]:
-						KnightClass.javelin_attack(current_unit)
+					KnightClass.javelin_attack(current_unit)
 
 					GeneralActions.attack_bitch(current_unit, p, "Earth", "knight_attack")
 					GeneralActions.move_bitch(current_unit, "Earth", "knight_move")
@@ -737,9 +661,7 @@ while True:
 					GeneralActions.load_unit(current_unit)
 					GeneralActions.move_towards_rocket(current_unit)
 
-					p = random.random()
-					if p < data["Earth"]["mage_blink"]:
-						MageClass.blink_attack_earth(current_unit)
+					MageClass.blink_attack_earth(current_unit)
 
 					GeneralActions.attack_bitch(current_unit, p, "Earth", "mage_attack")
 					GeneralActions.move_bitch(current_unit, "Earth", "mage_move")
@@ -747,69 +669,43 @@ while True:
 				if current_unit.unit_type == bc.UnitType.Ranger:
 					GeneralActions.load_unit(current_unit)
 					GeneralActions.move_towards_rocket(current_unit)
-
-					p = random.random()
-					if p < data["Earth"]["ranger_snipe"]:
-						RangerClass.snipe_attack_earth(current_unit)
+					
+					RangerClass.snipe_attack_earth(current_unit)
 
 					GeneralActions.attack_bitch(current_unit, p, "Earth", "ranger_attack")
 					GeneralActions.move_bitch(current_unit, "Earth", "ranger_move")
 
-				if current_unit.unit_type == bc.UnitType.Healer:
-					GeneralActions.load_unit(current_unit)
-					GeneralActions.move_towards_rocket(current_unit)
-
-					p = random.random()
-					if p < data["Earth"]["healer_overcharge"]:
-						HealerClass.overcharge_attack(current_unit)
-
-					HealerClass.heal_bitch(current_unit)
-					GeneralActions.move_bitch(current_unit, "Earth", "healer_move")
-
+				
 				if current_unit.unit_type == bc.UnitType.Factory:
 					FactoryClass.unload_factory(current_unit)
 					if current_unit.is_factory_producing():
 						continue
 
-					p = random.random()
-					if p < data["Earth"][phase_number]["produce_worker"]:
-						FactoryClass.produce_unit(current_unit, bc.UnitType.Worker)
+					FactoryClass.produce_unit(current_unit, bc.UnitType.Worker)
 
-					elif p < data["Earth"][phase_number]["produce_knight"]:
-						FactoryClass.produce_unit(current_unit, bc.UnitType.Knight)
+					FactoryClass.produce_unit(current_unit, bc.UnitType.Knight)
 
-					elif p < data["Earth"][phase_number]["produce_healer"]:
-						FactoryClass.produce_unit(current_unit, bc.UnitType.Healer)
+					FactoryClass.produce_unit(current_unit, bc.UnitType.Mage)
 
-					elif p < data["Earth"][phase_number]["produce_mage"]:
-						FactoryClass.produce_unit(current_unit, bc.UnitType.Mage)
+					FactoryClass.produce_unit(current_unit, bc.UnitType.Ranger)
+					
+					FactoryClass.produce_unit(current_unit, bc.UnitType.Healer)
+					
+				if current_unit.unit_type == bc.UnitType.Healer:
+					GeneralActions.load_unit(current_unit)
+					GeneralActions.move_towards_rocket(current_unit)
 
-					elif p < data["Earth"][phase_number]["produce_ranger"]:
-						FactoryClass.produce_unit(current_unit, bc.UnitType.Ranger)
+					HealerClass.overcharge_attack(current_unit)
 
-				if current_unit.unit_type == bc.UnitType.Rocket:
-					p = random.random()
-					if p < data["Earth"][phase_number]["rocket_launch"]:
-						RocketClass.launch_rocket(current_unit)
+					HealerClass.heal_bitch(current_unit)
+					GeneralActions.move_bitch(current_unit, "Earth", "healer_move")
 
+				
 				if phase_number == "third_phase":
 					if total_number_rockets == 0:
 						total_number_rockets = -1
 						#Set a new default to please the memer establishment
-						data["Earth"][phase_number]["worker_harvest"] = 0.420
-						data["Earth"][phase_number]["worker_replicate"] = 0.69
-						data["Earth"][phase_number]["worker_blueprint_factory"] = 0.420
-						data["Earth"][phase_number]["worker_blueprint_rocket"] = 0.69
-						data["Earth"][phase_number]["worker_repair"] = 0.69
-						data["Earth"][phase_number]["worker_attack"] = 0.420
-						data["Earth"][phase_number]["worker_move"] = 0.69
-
-						data["Earth"][phase_number]["produce_worker"] = 0.420
-						data["Earth"][phase_number]["produce_knight"] = 0.69
-						data["Earth"][phase_number]["produce_healer"] = 0.420
-						data["Earth"][phase_number]["produce_mage"] = 0.69
-						data["Earth"][phase_number]["produce_ranger"] = 0.420
-						data["Earth"][phase_number]["rocket_launch"] = 0.69
+						
 
 	except Exception as e:
 		print('Error:', e)
