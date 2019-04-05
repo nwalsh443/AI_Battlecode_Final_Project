@@ -42,7 +42,7 @@ data = json.load(open(filename))
 
 data = {
 #Making memers proud, but fix for our lord Ben
-	
+
 	"Earth": {
 		"first_phase": {
 			"threshold": 200
@@ -172,7 +172,7 @@ class GeneralActions(object):
 			gc.move_robot(unit.id, dir)
 			#print('Moved successfully!')
 
-	def attack_bitch(unit, p, place, attackType):
+	def attack_bitch(unit, place, attackType):
 		if not gc.is_attack_ready(unit.id):
 			return
 
@@ -342,7 +342,7 @@ class MageClass(object): #if blink is ready, and it's a level 4 or higher
 
 		location = unit.location
 		#sense nearby targets, and don't blink if there are less than 5 targets
-		possible_targets = sense_nearby_units_by_team(location.map_location(), 30, enemy_team)
+		possible_targets = gc.sense_nearby_units_by_team(location.map_location(), 30, enemy_team)
 		if len(possible_targets) > 5:
 			return
 		#pick random spot on board to teleport to
@@ -370,7 +370,7 @@ class MageClass(object): #if blink is ready, and it's a level 4 or higher
 
 		location = unit.location
 
-		possible_targets = sense_nearby_units_by_team(location.map_location(), 30, enemy_team)
+		possible_targets = gc.sense_nearby_units_by_team(location.map_location(), 30, enemy_team)
 		if len(possible_targets) > 5:
 			return
 #Work on making this less random
@@ -411,7 +411,7 @@ class HealerClass(object):
 
 		location = unit.location
 
-		possible_targets = sense_nearby_units_by_team(location.map_location(), unit.ability_range(), my_team)
+		possible_targets = gc.sense_nearby_units_by_team(location.map_location(), unit.ability_range(), my_team)
 		for other in possible_targets:
 			if gc.can_heal(unit.id, other.id):
 				gc.heal(unit.id, other.id)
@@ -483,17 +483,15 @@ class RangerClass(object):
 class KnightClass(object):
 
 	def javelin_attack(unit):
-		if not gc.is_javelin_ready(unit.id):
-			return
-		if bc.ResearchInfo.get_level(bc.UnitType.Knight) < 3:
-			return
 
 		location = unit.location
 #Javelin opponents if it can
-		possible_targets = sense_nearby_units_by_team(location.map_location(), unit.ability_range(), enemy_team)
+		possible_targets = gc.sense_nearby_units_by_team(location.map_location(), unit.ability_range(), enemy_team)
 		for other in possible_targets:
 			if gc.can_javelin(unit.id, other.id):
 				gc.javelin(unit.id, other.id)
+				return
+			else:
 				return
 
 class RocketClass(object):
@@ -573,31 +571,31 @@ while True:
 
 					elif myWorkFlip == 1:
 						WorkerClass.replicate_worker(current_unit)
-					
-					myWorkFlip = (myWorkFlip + 1)%3
 
-					GeneralActions.attack_bitch(current_unit, p, "Mars", "worker_attack")
+					myWorkFlip = (myWorkFlip + 1)%4
+
+					GeneralActions.attack_bitch(current_unit, "Mars", "worker_attack")
 					GeneralActions.move_bitch(current_unit, "Mars", "worker_move")
 
 				if current_unit.unit_type == bc.UnitType.Rocket:
 					RocketClass.unload_rocket(current_unit)
-				
+
 				if current_unit.unit_type == bc.UnitType.Knight:
 					KnightClass.javelin_attack(current_unit)
 
-					GeneralActions.attack_bitch(current_unit, p, "Mars", "knight_attack")
+					GeneralActions.attack_bitch(current_unit, "Mars", "knight_attack")
 					GeneralActions.move_bitch(current_unit, "Mars", "knight_move")
 
 				if current_unit.unit_type == bc.UnitType.Mage:
 					MageClass.blink_attack_mars(current_unit)
 
-					GeneralActions.attack_bitch(current_unit, p, "Mars", "mage_attack")
+					GeneralActions.attack_bitch(current_unit, "Mars", "mage_attack")
 					GeneralActions.move_bitch(current_unit, "Mars", "mage_move")
 
 				if current_unit.unit_type == bc.UnitType.Ranger:
 					RangerClass.snipe_attack_mars(current_unit)
 
-					GeneralActions.attack_bitch(current_unit, p, "Mars", "ranger_attack")
+					GeneralActions.attack_bitch(current_unit, "Mars", "ranger_attack")
 					GeneralActions.move_bitch(current_unit, "Mars", "ranger_move")
 
 				if current_unit.unit_type == bc.UnitType.Healer:
@@ -638,14 +636,14 @@ while True:
 
 					elif myWorkFlipE == 4:
 						WorkerClass.repair(current_unit)
-						
-					myWorkFlipE = (myWorkFlipE + 1)%6
 
-					GeneralActions.attack_bitch(current_unit, p, "Earth", "worker_attack")
+					myWorkFlipE = (myWorkFlipE + 1)%7
+
+					GeneralActions.attack_bitch(current_unit, "Earth", "worker_attack")
 					GeneralActions.move_bitch(current_unit, "Earth", "worker_move")
-					
+
 				if current_unit.unit_type == bc.UnitType.Rocket:
-					
+
 					RocketClass.launch_rocket(current_unit)
 
 				if current_unit.unit_type == bc.UnitType.Knight:
@@ -654,7 +652,7 @@ while True:
 
 					KnightClass.javelin_attack(current_unit)
 
-					GeneralActions.attack_bitch(current_unit, p, "Earth", "knight_attack")
+					GeneralActions.attack_bitch(current_unit, "Earth", "knight_attack")
 					GeneralActions.move_bitch(current_unit, "Earth", "knight_move")
 
 				if current_unit.unit_type == bc.UnitType.Mage:
@@ -663,19 +661,19 @@ while True:
 
 					MageClass.blink_attack_earth(current_unit)
 
-					GeneralActions.attack_bitch(current_unit, p, "Earth", "mage_attack")
+					GeneralActions.attack_bitch(current_unit, "Earth", "mage_attack")
 					GeneralActions.move_bitch(current_unit, "Earth", "mage_move")
 
 				if current_unit.unit_type == bc.UnitType.Ranger:
 					GeneralActions.load_unit(current_unit)
 					GeneralActions.move_towards_rocket(current_unit)
-					
+
 					RangerClass.snipe_attack_earth(current_unit)
 
-					GeneralActions.attack_bitch(current_unit, p, "Earth", "ranger_attack")
+					GeneralActions.attack_bitch(current_unit,"Earth", "ranger_attack")
 					GeneralActions.move_bitch(current_unit, "Earth", "ranger_move")
 
-				
+
 				if current_unit.unit_type == bc.UnitType.Factory:
 					FactoryClass.unload_factory(current_unit)
 					if current_unit.is_factory_producing():
@@ -688,9 +686,9 @@ while True:
 					FactoryClass.produce_unit(current_unit, bc.UnitType.Mage)
 
 					FactoryClass.produce_unit(current_unit, bc.UnitType.Ranger)
-					
+
 					FactoryClass.produce_unit(current_unit, bc.UnitType.Healer)
-					
+
 				if current_unit.unit_type == bc.UnitType.Healer:
 					GeneralActions.load_unit(current_unit)
 					GeneralActions.move_towards_rocket(current_unit)
@@ -700,12 +698,12 @@ while True:
 					HealerClass.heal_bitch(current_unit)
 					GeneralActions.move_bitch(current_unit, "Earth", "healer_move")
 
-				
+
 				if phase_number == "third_phase":
 					if total_number_rockets == 0:
 						total_number_rockets = -1
 						#Set a new default to please the memer establishment
-						
+
 
 	except Exception as e:
 		print('Error:', e)
