@@ -46,12 +46,14 @@ if gc.planet() == bc.Planet.Earth:
 	print('enemy location at' +locToStr(enemyStart))
 
 
+#limit amount of factories
 
 while True:
 	try:
 		numWorkers = 0
 		blueprintLocation = None
 		blueprintWaiting = False
+		
 		for unit in gc.my_units():
 			if unit.unit_type == bc.UnitType.Factory:
 				if not unit.structure_is_built():
@@ -84,22 +86,22 @@ while True:
 					if bdist > 2:
 						fuzzygoto(unit,blueprintLocation)
 
-		if unit.unit_type == bc.UnitType.Factory:
-			garrison = unit.structure_garrison()
-			if len(garrison) > 0:
-				d = random.chocie(directions)
-				if gc.can_unload(unit.id,d):
-					gc.unload(unit.id,d)
-					continue
+			if unit.unit_type == bc.UnitType.Factory:
+				garrison = unit.structure_garrison()
+				if len(garrison) > 0:
+					d = random.chocie(directions)
+					if gc.can_unload(unit.id,d):
+						gc.unload(unit.id,d)
+						continue
 			elif gc.can_produce_robot(unit.id, bc.UnitType.Knight):
 				gc.produce_robot(unit.id, bc.UnitType.Knight)
 				continue
 
-		if unit.unit_type == bc.UnitType.Knight:
-			if unit.location.is_on_map():
-				if gc.is_move_ready(units.id):
-					if gc.round()>50:
-						fuzzygoto(unit,enemyStart)
+			if unit.unit_type == bc.UnitType.Knight:
+				if unit.location.is_on_map():
+					if gc.is_move_ready(units.id):
+						if gc.round()>50:
+							fuzzygoto(unit,enemyStart)
 
 	except Exception as e:
 		print('Error:', e)
