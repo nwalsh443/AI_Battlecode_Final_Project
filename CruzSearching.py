@@ -8,7 +8,7 @@ import sys
 gc = bc.GameController()
 directions = [bc.Direction.North,bc.Direction.Northeast,bc.Direction.East,bc.Direction.Southeast,bc.Direction.South,bc.Direction.Southwest,bc.Direction.West,bc.Direction.Northwest]
 tryRotate = [0,-1,2,-2,2]
-random.seed(6137)
+#random.seed(6137)
 my_team = gc.team()
 
 
@@ -41,7 +41,7 @@ def rotate(dir,amount):
 if gc.planet() == bc.Planet.Earth:
 	oneLoc = gc.my_units()[0].location.map_location()
 	earthMap = gc.starting_map(bc.Planet.Earth)
-	enemyStart = invert (oneLoc)
+	enemyStart = invert(oneLoc)
 	print('worker stars at' +locToStr(oneLoc))
 	print('enemy location at' +locToStr(enemyStart))
 
@@ -51,8 +51,11 @@ if gc.planet() == bc.Planet.Earth:
 while True:
 	try:
 		numWorkers = 0
+		amount_of_factories = 0
 		blueprintLocation = None
 		blueprintWaiting = False
+		
+		
 		
 		for unit in gc.my_units():
 			if unit.unit_type == bc.UnitType.Factory:
@@ -69,37 +72,39 @@ while True:
 				if numWorkers < 5 and gc.can_replicate(unit.id,d):
 					gc.replicate(unit.id,d)
 					continue
-			if gc.karbonite() > bc.UnitType.Factory.blueprint_cost():
-				if gc.can_blueprint(unit.id,bc.UnitType.Factory,d):
-					gc.blueprint(unit.id,bc.UnitType.Factory,d)
-					continue
-			adjacentUnits = gc.sense_nearby_units(unit.location.map_location(), 2)
-			for adjacent in adjacentUnits:
-				if gc.can_build(unit.id,adjacent.id):
-					gc.build(unit.id,adjacent.id)
-					continue
+		
+				if gc.karbonite() > bc.UnitType.Factory.blueprint_cost():
+					if gc.can_blueprint(unit.id,bc.UnitType.Factory,d) and amount_of_factories < 2:
+						gc.blueprint(unit.id,bc.UnitType.Factory,d)
+						amount_of_factories += 1
+						continue
+				adjacentUnits = gc.sense_nearby_units_by_type(unit.location.map_location(), 2, bc.UnitType.Factory)
+				for adjacent in adjacentUnits:
+					if gc.can_build(unit.id,adjacent.id):
+						gc.build(unit.id,adjacent.id)
+						continue
 
-			if blueprintWaiting:
-				if gc.is_move_ready(unit.id):
-					ml = unit.location.map_location()
-					bdist = ml.distance_squared_to(blueprintLocation)
-					if bdist > 2:
-						fuzzygoto(unit,blueprintLocation)
+				if blueprintWaiting:
+					if gc.is_move_ready(unit.id):
+						ml = unit.location.map_location()
+						bdist = ml.distance_squared_to(blueprintLocation)
+						if bdist > 2:
+							fuzzygoto(unit,blueprintLocation)
 
 			if unit.unit_type == bc.UnitType.Factory:
 				garrison = unit.structure_garrison()
 				if len(garrison) > 0:
-					d = random.chocie(directions)
+					d = random.choice(directions)
 					if gc.can_unload(unit.id,d):
 						gc.unload(unit.id,d)
 						continue
-			elif gc.can_produce_robot(unit.id, bc.UnitType.Knight):
-				gc.produce_robot(unit.id, bc.UnitType.Knight)
-				continue
+				elif gc.can_produce_robot(unit.id, bc.UnitType.Knight):
+					gc.produce_robot(unit.id, bc.UnitType.Knight)
+					continue
 
 			if unit.unit_type == bc.UnitType.Knight:
 				if unit.location.is_on_map():
-					if gc.is_move_ready(units.id):
+					if gc.is_move_ready(unit.id):
 						if gc.round()>50:
 							fuzzygoto(unit,enemyStart)
 
