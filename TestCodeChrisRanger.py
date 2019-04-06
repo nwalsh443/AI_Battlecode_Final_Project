@@ -10,10 +10,9 @@ directions = [bc.Direction.North,bc.Direction.Northeast,bc.Direction.East,bc.Dir
 tryRotate = [0,-1,2,-2,2]
 #random.seed(6137)
 my_team = gc.team()
-
-if my_team == bc.Team.Red:enemy_team = bc.Team.Blue()
-else: enemy_team = bc.Team.Red
-
+enemy_team = bc.Team.Red
+if my_team == bc.Team.Red:
+	enemy_team = bc.Team.Blue
 
 
 
@@ -21,6 +20,7 @@ def locToStr(loc):
 	return '('+str(loc.x)+','+str(loc.y)+')'
 
 def goto(unit,dest):
+
 	d = unit.location.map_location().direction_to(dest)
 	if gc.can_move(unit.id,d):
 		gc.move_robot(unit.id,d)
@@ -54,6 +54,7 @@ if gc.planet() == bc.Planet.Earth:
 
 while True:
 	try:
+		
 		numWorkers = 0
 		amount_of_factories = 0
 		blueprintLocation = None
@@ -112,7 +113,8 @@ while True:
 						if gc.round()>50:
 							fuzzygoto(unit,enemyStart)
 						if gc.round()>200:
-							goto(unit,random.choice(directions))
+							d = random.choice(directions)
+							goto(unit,d)
 						
 						
 			if unit.unit_type == bc.UnitType.Ranger:
@@ -127,7 +129,7 @@ while True:
 							destination = nearbyEnemies[0].location.map_location()
 						else:
 							destination = enemyStart
-						fuzzygoto(unit, destination)
+							fuzzygoto(unit, destination)
 
 	except Exception as e:
 		print('Error:', e)
