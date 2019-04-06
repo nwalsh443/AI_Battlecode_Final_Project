@@ -128,13 +128,11 @@ while True:
 					if gc.can_unload(unit.id,d):
 						gc.unload(unit.id,d)
 						continue
-						
 					
-				if numRangers < 4:
-					if gc.can_produce_robot(unit.id, bc.UnitType.Ranger):
-						gc.produce_robot(unit.id, bc.UnitType.Ranger)
-						numRangers += 1
-						continue
+				if gc.can_produce_robot(unit.id, bc.UnitType.Ranger):
+					gc.produce_robot(unit.id, bc.UnitType.Ranger)
+					numRangers += 1
+					continue
 				elif gc.can_produce_robot(unit.id, bc.UnitType.Knight):
 					gc.produce_robot(unit.id, bc.UnitType.Knight)
 					numKnights += 1
@@ -143,26 +141,28 @@ while True:
 			if unit.unit_type == bc.UnitType.Ranger:
 				if unit.location.is_on_map():
 					if gc.is_move_ready(unit.id):
-						if gc.round()>50 and unit.location.map_location() != enemyStart and FoundEnemyLocation == False:
+						if gc.round()>50 and FoundEnemyLocation == False:
 							fuzzygoto(unit,enemyStart)
-							if unit.location.map_location() == enemyStart:
+							if gc.can_sense_location(enemyStart):
+								print('Found enemy start')
 								FoundEnemyLocation = True
-						if FoundEnemyLocation:
-							#d = random.choice(directions)
-							fuzzygoto(unit,directions[0])
+						else:
+							if gc.is_move_ready(unit.id):
+								fuzzygoto(unit,oneLoc)
 						
 							
 							
-			if unit.unit_type == bc.UnitType.Knight:
-				if unit.location.is_on_map():
-					if gc.is_move_ready(unit.id):
-						if gc.round()>50 and FoundEnemyLocation == False:
-							fuzzygoto(unit,enemyStart)
-							if unit.location.map_location() == enemyStart:
-								FoundEnemyLocation = True
-						if FoundEnemyLocation:
-							#d = random.choice(directions)
-							fuzzygoto(unit,directions[0])
+		#	if unit.unit_type == bc.UnitType.Knight:
+		#		if unit.location.is_on_map():
+		#			if gc.is_move_ready(unit.id):
+		#				if gc.round()>50 and FoundEnemyLocation == False:
+		#					fuzzygoto(unit,enemyStart)
+		#					if unit.location.map_location() == enemyStart:
+		#						FoundEnemyLocation = True
+		#				if FoundEnemyLocation:
+		#					#d = random.choice(directions)
+		#					fuzzygoto(unit,directions[0])
+							
 						
 						
 						
