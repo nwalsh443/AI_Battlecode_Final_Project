@@ -77,8 +77,10 @@ if gc.planet() == bc.Planet.Earth:
 while True:
 	try:
 		
-		numKnights = 0
 		numRangers = 0
+		
+		numKnights = 0
+		
 		numWorkers = 0
 		amount_of_factories = 0
 		blueprintLocation = None
@@ -97,6 +99,11 @@ while True:
 				numWorkers +=1
 
 		for unit in gc.my_units():
+			if unit.unit_type == bc.UnitType.Ranger:
+				numRangers +=1
+			if unit.unit_type == bc.UnitType.Knight:
+				numKnights +=1
+				
 			if unit.unit_type == bc.UnitType.Worker:
 				d = random.choice(directions)
 				if numWorkers < 5 and gc.can_replicate(unit.id,d):
@@ -129,13 +136,16 @@ while True:
 						gc.unload(unit.id,d)
 						continue
 					
-				if gc.can_produce_robot(unit.id, bc.UnitType.Ranger):
+				if gc.can_produce_robot(unit.id, bc.UnitType.Ranger) and numRangers < 8:
+					
 					gc.produce_robot(unit.id, bc.UnitType.Ranger)
-					numRangers += 1
+					
+					print('Printing Ranger')
 					continue
 				elif gc.can_produce_robot(unit.id, bc.UnitType.Knight):
 					gc.produce_robot(unit.id, bc.UnitType.Knight)
 					numKnights += 1
+					print('Printing Knight')
 					continue
 
 			if unit.unit_type == bc.UnitType.Ranger:
@@ -152,16 +162,17 @@ while True:
 						
 							
 							
-		#	if unit.unit_type == bc.UnitType.Knight:
-		#		if unit.location.is_on_map():
-		#			if gc.is_move_ready(unit.id):
-		#				if gc.round()>50 and FoundEnemyLocation == False:
-		#					fuzzygoto(unit,enemyStart)
-		#					if unit.location.map_location() == enemyStart:
-		#						FoundEnemyLocation = True
-		#				if FoundEnemyLocation:
-		#					#d = random.choice(directions)
-		#					fuzzygoto(unit,directions[0])
+			if unit.unit_type == bc.UnitType.Knight:
+				if unit.location.is_on_map():
+					if gc.is_move_ready(unit.id):
+						if gc.round()>50 and FoundEnemyLocation == False:
+							fuzzygoto(unit,enemyStart)
+							if gc.can_sense_location(enemyStart):
+								print('Found enemy start')
+								FoundEnemyLocation = True
+						else:
+							if gc.is_move_ready(unit.id):
+								fuzzygoto(unit,oneLoc)
 							
 						
 						
@@ -171,6 +182,19 @@ while True:
 						
 			if unit.unit_type == bc.UnitType.Ranger:
 				if not unit.location.is_in_garrison():
+					attackableEnemies = gc.sense_nearby_units_by_team(unit.location.map_location(),70,enemy_team)
+					if len(attackableEnemies) > 0:
+						if gc.is_attack_ready(unit.id):
+							if gc.can_attack(unit.id,attackableEnemies[0].id):
+								gc.attack(unit.id, attackableEnemies[0].id)
+					elif gc.is_move_ready(unit.id):
+						nearbyEnemies = gc.sense_nearby_units_by_team(unit.location.map_location(),70,enemy_team)
+						if len(nearbyEnemies) > 0: 
+							destination = nearbyEnemies[0].location.map_location()
+							
+							
+			if unit.unit_type == bc.UnitType.Knight:
+				if not unit.location.is_in_garrison():
 					attackableEnemies = gc.sense_nearby_units_by_team(unit.location.map_location(),50,enemy_team)
 					if len(attackableEnemies) > 0:
 						if gc.is_attack_ready(unit.id):
@@ -178,7 +202,7 @@ while True:
 								gc.attack(unit.id, attackableEnemies[0].id)
 					elif gc.is_move_ready(unit.id):
 						nearbyEnemies = gc.sense_nearby_units_by_team(unit.location.map_location(),50,enemy_team)
-						if len(nearbyEnemies) > 0:
+						if len(nearbyEnemies) > 0: 
 							destination = nearbyEnemies[0].location.map_location()
 		
 					
