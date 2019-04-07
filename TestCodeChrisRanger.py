@@ -14,6 +14,9 @@ enemy_team = bc.Team.Red
 if my_team == bc.Team.Red:
 	enemy_team = bc.Team.Blue
 
+gc.queue_research(bc.UnitType.Ranger)
+gc.queue_research(bc.UnitType.Ranger)
+gc.queue_research(bc.UnitType.Ranger)
 
 
 def locToStr(loc):
