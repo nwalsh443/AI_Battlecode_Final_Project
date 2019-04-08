@@ -127,6 +127,7 @@ if gc.planet() == bc.Planet.Earth:
 
 locations = []
 #limit amount of factories
+turnNumber = 0
 
 while True:
 	try:
@@ -135,6 +136,10 @@ while True:
 		visted = False
 		
 		numRangers = 0
+		
+		#turnNumber = 0
+		
+		numHealers = 0
 		
 		numMages = 0
 		
@@ -209,25 +214,32 @@ while True:
 						gc.unload(unit.id,d)
 		#				continue
 					
-				if gc.can_produce_robot(unit.id, bc.UnitType.Ranger) and numRangers < 5 or numRangers < numMages:
+				if gc.can_produce_robot(unit.id, bc.UnitType.Ranger) and turnNumber < 3 or numRangers < numMages:
 					gc.produce_robot(unit.id, bc.UnitType.Ranger)
-					
+					turnNumber += 1
+					#numRangers = numRangers + 1
+					print('numRangers = ', numRangers)
+					print('turnNumber = ', turnNumber)
 					print('Printing Ranger')
 					
 		#			continue
 					
-				if gc.can_produce_robot(unit.id, bc.UnitType.Mage) and numRangers == 5:
+				if gc.can_produce_robot(unit.id, bc.UnitType.Mage) and turnNumber >= 3 and turnNumber < 6:
 					gc.produce_robot(unit.id, bc.UnitType.Mage)
-				
+					turnNumber += 1
+					#numMages = numMages + 1
+					print('numMages = ', numMages)
 					print('Printing Mage')
 		#			continue
 			
-				if gc.can_produce_robot(unit.id, bc.UnitType.Healer) and numRangers == 5 or numMages == 5:
+				if gc.can_produce_robot(unit.id, bc.UnitType.Healer) and turnNumber >= 6:
 					gc.produce_robot(unit.id, bc.UnitType.Healer)
-					
+					turnNumber = 0
+					#numHealers = numHealers + 1
+					print('numHealers = ', numHealers)
 					print('Printing  Healer')
 					
-					continue
+					#continue
 
 			if unit.unit_type == bc.UnitType.Ranger:
 				if unit.location.is_on_map():
@@ -237,7 +249,7 @@ while True:
 						if gc.round()>50 and FoundEnemyLocation == False:
 							fuzzygoto(unit,enemyStart)
 							if gc.can_sense_location(enemyStart):
-								print('Found enemy start')
+								#print('Found enemy start')
 								FoundEnemyLocation = True
 						else:
 							if gc.is_move_ready(unit.id):
@@ -311,9 +323,9 @@ while True:
 				if not unit.location.is_in_garrison():
 					healFriendly = gc.sense_nearby_units_by_team(unit.location.map_location(),30,my_team)
 					if len(healFriendly) > 0:
-						if gc.is_attack_ready(unit.id):
-							if gc.can_heal(unit.id,healFriendly[0].id)
-								gc.can_heal(unit.id,healFriendly[0].id)
+						if gc.is_heal_ready(unit.id):
+							if gc.can_heal(unit.id,healFriendly[0].id):
+								gc.heal(unit.id,healFriendly[0].id)
 					elif gc.is_move_ready(unit.id):
 						nearbyFriendly = gc.sense_nearby_units_by_team(unit.location.map_location(),30,my_team)
 						if len(nearbyFriendly) > 0:
