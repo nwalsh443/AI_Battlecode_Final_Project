@@ -103,6 +103,19 @@ if gc.planet() == bc.Planet.Earth:
 	gc.queue_research(bc.UnitType.Rocket)
 	gc.queue_research(bc.UnitType.Rocket)
 	gc.queue_research(bc.UnitType.Rocket)
+	gc.queue_research(bc.UnitType.Mage)
+	gc.queue_research(bc.UnitType.Mage)
+	gc.queue_research(bc.UnitType.Mage)
+	gc.queue_research(bc.UnitType.Ranger)
+	gc.queue_research(bc.UnitType.Ranger)
+	gc.queue_research(bc.UnitType.Worker)
+	gc.queue_research(bc.UnitType.Worker)
+	gc.queue_research(bc.UnitType.Worker)
+	gc.queue_research(bc.UnitType.Worker)
+	gc.queue_research(bc.UnitType.Worker)
+	gc.queue_research(bc.UnitType.Healer)
+	gc.queue_research(bc.UnitType.Healer)
+	
 	oneLoc = gc.my_units()[0].location.map_location()
 	
 	earthMap = gc.starting_map(bc.Planet.Earth)
@@ -114,6 +127,7 @@ if gc.planet() == bc.Planet.Earth:
 
 locations = []
 #limit amount of factories
+turnNumber = 0
 
 while True:
 	try:
@@ -123,7 +137,11 @@ while True:
 		
 		numRangers = 0
 		
-		numKnights = 0
+		#turnNumber = 0
+		
+		numHealers = 0
+		
+		numMages = 0
 		
 		numWorkers = 0
 		
@@ -151,12 +169,14 @@ while True:
 		for unit in gc.my_units():
 			if unit.unit_type == bc.UnitType.Ranger:
 				numRangers +=1
-			if unit.unit_type == bc.UnitType.Knight:
-				numKnights +=1
 			if unit.unit_type == bc.UnitType.Factory:
 				amount_of_factories =+1
 			if unit.unit_type == bc.UnitType.Rocket:
 				numRocket +=1
+			if unit.unit_type == bc.UnitType.Mage:
+				numMages +=1
+			if unit.unit_type == bc.UnitType.Healer:
+				numHealers +=1
 				
 			if unit.unit_type == bc.UnitType.Worker:
 				d = random.choice(directions)
@@ -194,21 +214,51 @@ while True:
 						gc.unload(unit.id,d)
 		#				continue
 					
-				if gc.can_produce_robot(unit.id, bc.UnitType.Ranger) and numRangers < 20:
-					
+				if gc.can_produce_robot(unit.id, bc.UnitType.Ranger) and turnNumber < 3 or numRangers < numMages:
 					gc.produce_robot(unit.id, bc.UnitType.Ranger)
-					
+					turnNumber += 1
+					#numRangers = numRangers + 1
+					print('numRangers = ', numRangers)
+					print('turnNumber = ', turnNumber)
 					print('Printing Ranger')
 					
 		#			continue
 					
-				elif gc.can_produce_robot(unit.id, bc.UnitType.Knight):
-					gc.produce_robot(unit.id, bc.UnitType.Knight)
-				
-					print('Printing Knight')
+				if gc.can_produce_robot(unit.id, bc.UnitType.Mage) and turnNumber >= 3 and turnNumber < 6:
+					gc.produce_robot(unit.id, bc.UnitType.Mage)
+					turnNumber += 1
+					#numMages = numMages + 1
+					print('numMages = ', numMages)
+					print('Printing Mage')
 		#			continue
+			
+				if gc.can_produce_robot(unit.id, bc.UnitType.Healer) and turnNumber >= 6:
+					gc.produce_robot(unit.id, bc.UnitType.Healer)
+					turnNumber = 0
+					#numHealers = numHealers + 1
+					print('numHealers = ', numHealers)
+					print('Printing  Healer')
+					
+					#continue
 
 			if unit.unit_type == bc.UnitType.Ranger:
+				if unit.location.is_on_map():
+					temp_location = newLoc()
+					
+					if gc.is_move_ready(unit.id):
+						if gc.round()>50 and FoundEnemyLocation == False:
+							fuzzygoto(unit,enemyStart)
+							if gc.can_sense_location(enemyStart):
+								#print('Found enemy start')
+								FoundEnemyLocation = True
+						else:
+							if gc.is_move_ready(unit.id):
+								fuzzygoto(unit,temp_location)					
+								if temp_location == unit.location.map_location():
+									print('been here')
+									continue
+									
+			if unit.unit_type == bc.UnitType.Mage:
 				if unit.location.is_on_map():
 					temp_location = newLoc()
 					
@@ -225,31 +275,22 @@ while True:
 									print('been here')
 									continue
 									
-								
-								
-								
-								
-						
-							
-							
-			if unit.unit_type == bc.UnitType.Knight:
+			if unit.unit_type == bc.UnitType.Healer:
 				if unit.location.is_on_map():
+					temp_location = newLoc()
+					
 					if gc.is_move_ready(unit.id):
-						if gc.round()>50 and FoundEnemyLocation == False:
-							fuzzygoto(unit,enemyStart)
+						if gc.round() > 50 and FoundEnemyLocation == False:
+							fuzzygoto(unit, enemyStart)
 							if gc.can_sense_location(enemyStart):
 								print('Found enemy start')
 								FoundEnemyLocation = True
 						else:
 							if gc.is_move_ready(unit.id):
-								fuzzygoto(unit,newLoc())
-								
-								
-							
-						
-						
-						
-						
+								fuzzygoto(unit, temp_location)
+								if temp_location == unit.location.map_location():
+									print('been here')
+									continue
 						
 						
 			if unit.unit_type == bc.UnitType.Ranger:
@@ -265,20 +306,31 @@ while True:
 							destination = nearbyEnemies[0].location.map_location()
 							
 							
-			if unit.unit_type == bc.UnitType.Knight:
+			if unit.unit_type == bc.UnitType.Mage:
 				if not unit.location.is_in_garrison():
-					attackableEnemies = gc.sense_nearby_units_by_team(unit.location.map_location(),50,enemy_team)
+					attackableEnemies = gc.sense_nearby_units_by_team(unit.location.map_location(),30,enemy_team)
 					if len(attackableEnemies) > 0:
 						if gc.is_attack_ready(unit.id):
 							if gc.can_attack(unit.id,attackableEnemies[0].id):
 								gc.attack(unit.id, attackableEnemies[0].id)
 					elif gc.is_move_ready(unit.id):
-						nearbyEnemies = gc.sense_nearby_units_by_team(unit.location.map_location(),50,enemy_team)
+						nearbyEnemies = gc.sense_nearby_units_by_team(unit.location.map_location(),30,enemy_team)
 						if len(nearbyEnemies) > 0: 
 							destination = nearbyEnemies[0].location.map_location()
 		
 					
-						
+			if unit.unit_type == bc.UnitType.Healer:
+				if not unit.location.is_in_garrison():
+					healFriendly = gc.sense_nearby_units_by_team(unit.location.map_location(),30,my_team)
+					if len(healFriendly) > 0:
+						if gc.is_heal_ready(unit.id):
+							if gc.can_heal(unit.id,healFriendly[0].id):
+								gc.heal(unit.id,healFriendly[0].id)
+					elif gc.is_move_ready(unit.id):
+						nearbyFriendly = gc.sense_nearby_units_by_team(unit.location.map_location(),30,my_team)
+						if len(nearbyFriendly) > 0:
+							destination = nearbyFriendly[0].location.map_location()
+			
 					
 
 	except Exception as e:
