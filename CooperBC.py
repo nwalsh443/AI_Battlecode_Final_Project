@@ -100,21 +100,21 @@ def rotate(dir,amount):
 	return directions[(ind + amount) % 8 ]
 
 if gc.planet() == bc.Planet.Earth:
-	gc.queue_research(bc.UnitType.Rocket)
-	gc.queue_research(bc.UnitType.Rocket)
-	gc.queue_research(bc.UnitType.Rocket)
-	gc.queue_research(bc.UnitType.Mage)
-	gc.queue_research(bc.UnitType.Mage)
-	gc.queue_research(bc.UnitType.Mage)
-	gc.queue_research(bc.UnitType.Ranger)
-	gc.queue_research(bc.UnitType.Ranger)
-	gc.queue_research(bc.UnitType.Worker)
-	gc.queue_research(bc.UnitType.Worker)
-	gc.queue_research(bc.UnitType.Worker)
-	gc.queue_research(bc.UnitType.Worker)
-	gc.queue_research(bc.UnitType.Worker)
-	gc.queue_research(bc.UnitType.Healer)
-	gc.queue_research(bc.UnitType.Healer)
+	if gc.round < 50:
+		gc.queue_research(bc.UnitType.Rocket)
+	else:
+		gc.queue_research(bc.UnitType.Mage)
+		gc.queue_research(bc.UnitType.Mage)
+		gc.queue_research(bc.UnitType.Mage)
+		gc.queue_research(bc.UnitType.Ranger)
+		gc.queue_research(bc.UnitType.Ranger)
+		gc.queue_research(bc.UnitType.Worker)
+		gc.queue_research(bc.UnitType.Worker)
+		gc.queue_research(bc.UnitType.Worker)
+		gc.queue_research(bc.UnitType.Worker)
+		gc.queue_research(bc.UnitType.Worker)
+		gc.queue_research(bc.UnitType.Healer)
+		gc.queue_research(bc.UnitType.Healer)
 	
 	oneLoc = gc.my_units()[0].location.map_location()
 	
