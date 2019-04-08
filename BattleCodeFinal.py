@@ -1,4 +1,5 @@
-
+#Code inspired by https://github.com/AnPelec/Battlecode-2018/blob/master/Project%20Hephaestus/run.py
+# 	https://www.youtube.com/watch?v=6Nd9nnPRS2E&t=3019s and https://www.youtube.com/watch?v=zM7XMLcWlJM&t=4981s
 import battlecode as bc
 import random
 import traceback
