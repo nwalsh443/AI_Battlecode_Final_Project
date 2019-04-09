@@ -79,14 +79,10 @@ def find_dimensions(current_planet):
 			high = med-1
 	return (ansx, ansy)
 
-
-	
 #The dimensions of the map
-
 (earthHeight, earthWidth) = find_dimensions(bc.Planet.Earth)
 
 #find adjacent locations
-	
 def adjacentLocation(loc):
 	placesOnMap = []
 
