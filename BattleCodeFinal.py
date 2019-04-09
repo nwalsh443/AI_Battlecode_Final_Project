@@ -12,15 +12,20 @@ import sys
 
 #sets gc to the battlecode GameController()
 gc = bc.GameController()
+
 #creates list of possible directions
 directions = [bc.Direction.North,bc.Direction.Northeast,bc.Direction.East,bc.Direction.Southeast,bc.Direction.South,bc.Direction.Southwest,bc.Direction.West,bc.Direction.Northwest,bc.Direction.Center]
+
 #creates list of possible rotations
 tryRotate = [0,-1,2,-2,2]
 my_team = gc.team()
+
 #sets my_team to the team the game controller is controlling
 my_team = gc.team()
+
 #sets enemy_team to the opposite team of my_team
 enemy_team = bc.Team.Red
+
 if my_team == bc.Team.Red:
 	enemy_team = bc.Team.Blue
 
@@ -30,12 +35,10 @@ def locToStr(loc):
 
 #Moves the bots
 def goto(unit,dest):
-
 	d = unit.location.map_location().direction_to(dest)
 	if gc.can_move(unit.id,d):
 		gc.move_robot(unit.id,d)
 
-		
 #Method that moves the bots
 def fuzzygoto(unit,dest):
 	toward = unit.location.map_location().direction_to(dest)
@@ -44,9 +47,6 @@ def fuzzygoto(unit,dest):
 		if gc.can_move(unit.id, d):
 			gc.move_robot(unit.id,d)
 			break
-			
-			
-			
 
 #Finds the dimensions of earth, used to find locations to travel to		
 def find_dimensions(current_planet):
@@ -54,7 +54,6 @@ def find_dimensions(current_planet):
 	high = 49
 	ansx = 19
 	ansy = 19
-	
 	planet_map = gc.starting_map(current_planet)
 	
 	while (low <= high):
@@ -78,7 +77,6 @@ def find_dimensions(current_planet):
 			low = med+1
 		else:
 			high = med-1
-			
 	return (ansx, ansy)
 
 
@@ -90,7 +88,6 @@ def find_dimensions(current_planet):
 #find adjacent locations
 	
 def adjacentLocation(loc):
-
 	placesOnMap = []
 
 	newx = loc.x
@@ -114,26 +111,15 @@ def adjacentLocation(loc):
 	placesOnMap.append(NorthWest)
 	placesOnMap.append(SouthEast)
 	placesOnMap.append(SouthWest)
-	
-	
 	return placesOnMap
 	
-	
-	
-	
-
-
-
 #PASS IS LOCATION OF CURRENT UNTI CHECK ADJACENT LOCATIONS, IF ADJACENT LOCATION HAS NOT BEEN VISITED TRAVLE TO THAT LOCATION 
-
 
 #Method that finds a new location. Use this to have the bots randomy move to a new location
 def newLoc():
-  
 	newx = random.randint(1,earthWidth)
 	newy = random.randint(1,earthHeight)
 	locations.append((newx, newy))
-	
 	return bc.MapLocation(bc.Planet.Earth,newx,newy)
 	
 #Inverts the staring location of our team to find the location of the enemy team.
@@ -176,37 +162,23 @@ locations = []
 #a list of locations bots have already been to.
 pastlocations = []
 
+#Keeps track of the amount of robots being built
 turnNumber = 0
 
 while True:
 	try:
-		
-		
 		visited = False
-		
-		numRangers = 0
-		
-		
-		
-		numHealers = 0
-		
-		numMages = 0
-		
-		numWorkers = 0
-		
-		amount_of_factories = 0
-		
-		numRocket = 0
-		
-		blueprintLocation = None
-		
-		blueprintWaiting = False
-		
+		numRangers = 0					
+		numHealers = 0		
+		numMages = 0		
+		numWorkers = 0	
+		amount_of_factories = 0	
+		numRocket = 0	
+		blueprintLocation = None	
+		blueprintWaiting = False	
 		FoundEnemyLocation = False
-		
-		
-		
-#for all possible units		
+			
+		#for all possible units		
 		for unit in gc.my_units():
 		#if unit is factory and it is not built then choose the location and set blueprintWaiting to true
 			if unit.unit_type == bc.UnitType.Factory:
@@ -215,6 +187,7 @@ while True:
 					blueprintLocation = ml
 					blueprintWaiting = True
 					#if unit is worker add 1 to numWorkers
+					
 			if unit.unit_type == bc.UnitType.Worker:
 				numWorkers +=1
 
@@ -227,6 +200,7 @@ while True:
 					for i in pastlocations:
 						if unit.location.map_location() not in pastlocations:
 							pastlocations.append(unit.location.map_location())
+							
 			#if unit is a mage then add 1 to numMages				
 			if unit.unit_type == bc.UnitType.Mage:
 				numMages +=1
@@ -235,6 +209,7 @@ while True:
 					for i in pastlocations:
 						if unit.location.map_location() not in pastlocations:
 							pastlocations.append(unit.location.map_location())
+							
 			if unit.unit_type == bc.UnitType.Healer:
 				numHealers +=1
 				#if the location isn't in pastlocations then append it the list
@@ -256,31 +231,33 @@ while True:
 				if numWorkers < 5 and gc.can_replicate(unit.id,d):
 					gc.replicate(unit.id,d)
 					continue
-		#if there are less than 5 factories and there is enough karbonite and it is possible to build one, then build a factory
+					
+				#if there are less than 5 factories and there is enough karbonite and it is possible to build one, then build a factory
 				if gc.karbonite() > bc.UnitType.Factory.blueprint_cost() and amount_of_factories < 5:
 					if gc.can_blueprint(unit.id,bc.UnitType.Factory,d):
 						gc.blueprint(unit.id,bc.UnitType.Factory,d)
 				elif gc.karbonite() > bc.UnitType.Factory.blueprint_cost():
 					if gc.can_blueprint(unit.id,bc.UnitType.Rocket,d):
 						gc.blueprint(unit.id,bc.UnitType.Rocket,d)
-#creating list called adjacentUnits that holds nearby units
+				#creating list called adjacentUnits that holds nearby units
 				adjacentUnits = gc.sense_nearby_units(unit.location.map_location(), 2)
-	#for everything in adjacentUnits, if building in adjacent unit is possible, then build
+				
+				#for everything in adjacentUnits, if building in adjacent unit is possible, then build
 				for adjacent in adjacentUnits:
 					if gc.can_build(unit.id,adjacent.id):
 						gc.build(unit.id,adjacent.id)
 						
- 
-#if blueprintWaiting is true
+				#if blueprintWaiting is true
 				if blueprintWaiting:
-		#if is_move_ready is true
+					#if is_move_ready is true
 					if gc.is_move_ready(unit.id):
-				#set ml to to the current location
+						#set ml to to the current location
 						ml = unit.location.map_location()
 						bdist = ml.distance_squared_to(blueprintLocation)
 						if bdist > 2:
 							fuzzygoto(unit,blueprintLocation)
-#if unit is factory, it puts unit.structure_garrison in a list called garrison
+							
+			#if unit is factory, it puts unit.structure_garrison in a list called garrison
 			if unit.unit_type == bc.UnitType.Factory:
 				garrison = unit.structure_garrison()
 			#if garrison isn't empty then coose a random direction and unload if possible
@@ -288,13 +265,13 @@ while True:
 					d = random.choice(directions)
 					if gc.can_unload(unit.id,d):
 						gc.unload(unit.id,d)
+						
 				#produces rangers	
 				if gc.can_produce_robot(unit.id, bc.UnitType.Ranger) and turnNumber < 3 or numRangers < numMages and not unit.is_factory_producing():
 					if unit.structure_is_built():
 						gc.produce_robot(unit.id, bc.UnitType.Ranger)
 						turnNumber += 1
 					
-	
 				#produces mages	
 				if gc.can_produce_robot(unit.id, bc.UnitType.Mage) and turnNumber >= 3 and turnNumber < 6 and not unit.is_factory_producing():
 					if unit.structure_is_built():
@@ -306,7 +283,7 @@ while True:
 						gc.produce_robot(unit.id, bc.UnitType.Healer)
 						turnNumber = 0
 						
-		#keeps track of ranger locations
+			#keeps track of ranger locations
 			if unit.unit_type == bc.UnitType.Ranger:
 				if unit.location.is_on_map():
 					temp_location = newLoc()
@@ -325,13 +302,10 @@ while True:
 						if gc.round()>50 and FoundEnemyLocation == False:
 							fuzzygoto(unit,enemyStart)
 							if gc.can_sense_location(enemyStart):
-
 								FoundEnemyLocation = True
 						else:
 							if gc.is_move_ready(unit.id) and visited == False:
-
 								fuzzygoto(unit,adjLoc[d])
-
 							if gc.is_move_ready(unit.id) and visited == True:
 								fuzzygoto(unit,adjLoc[d])
 									
@@ -354,15 +328,13 @@ while True:
 						if gc.round()>50 and FoundEnemyLocation == False:
 							fuzzygoto(unit,enemyStart)
 							if gc.can_sense_location(enemyStart):
-
 								FoundEnemyLocation = True
 						else:
 							if gc.is_move_ready(unit.id) and visited == False:
-
-								fuzzygoto(unit,adjLoc[d])
-								
+								fuzzygoto(unit,adjLoc[d])							
 							if gc.is_move_ready(unit.id) and visited == True:
 								fuzzygoto(unit,adjLoc[d])
+								
 			#keeps track of healer locations					
 			if unit.unit_type == bc.UnitType.Healer:
 				if unit.location.is_on_map():
@@ -391,9 +363,7 @@ while True:
 								
 							if gc.is_move_ready(unit.id) and visited == True:
 								fuzzygoto(unit,adjLoc[d])
-								
-								
-												
+																			
 			#allows Rangers to sense enemies and attack them			
 			if unit.unit_type == bc.UnitType.Ranger:
 				if not unit.location.is_in_garrison():
@@ -406,6 +376,7 @@ while True:
 						nearbyEnemies = gc.sense_nearby_units_by_team(unit.location.map_location(),70,enemy_team)
 						if len(nearbyEnemies) > 0: 
 							destination = nearbyEnemies[0].location.map_location()
+							
 			#allows mages to sense enemies and attack them				
 			if unit.unit_type == bc.UnitType.Mage:
 				if not unit.location.is_in_garrison():
@@ -431,12 +402,6 @@ while True:
 						nearbyFriendly = gc.sense_nearby_units_by_team(unit.location.map_location(),30,my_team)
 						if len(nearbyFriendly) > 0:
 							destination = nearbyFriendly[0].location.map_location()
-							
-		
-		
-					
-						
-					
 
 	except Exception as e:
 		print('Error:', e)
